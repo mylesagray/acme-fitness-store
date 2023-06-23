@@ -192,3 +192,17 @@ To install the catalog, navigate to the TAP GUI home page and click the `Registe
 ```
 https://github.com/mylesagray/acme-fitness-store/blob/Azure/tap/catalog-info.yaml
 ```
+
+## Wavefront Proxy
+
+This deploys a wavefront-proxy, Aria Operations for Apps integration, just for the acme-fitness application. The AOA integration for K8S is independent (multiple wavefront-proxy's installed is fine... don't know if multiple collectors is a good idea).
+```
+ytt -f wavefront.yaml -v workloadNamespace=<workloadNamespace> -v wavefrontURI=<wavefrontURI> -v wavefrontToken=<wavefrontToken> | kubectl apply -f-
+```
+
+## Yaeger Collector
+
+The app has deprecated code that sends traces to Jaeger (should be replaced with OpenTracing). This will collect the traces and forward to the Wavefront Proxy.
+```
+ytt -f jaeger.yaml -v workloadNamespace=<workloadNamespace> -v  | kubectl apply -f-
+```
