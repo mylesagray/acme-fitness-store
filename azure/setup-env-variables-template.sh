@@ -12,4 +12,3 @@ export CATALOG_SERVICE_APP="catalog-service"
 export FRONTEND_APP="frontend"
 
 export CUSTOM_BUILDER="no-bindings-builder"
-

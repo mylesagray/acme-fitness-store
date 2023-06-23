@@ -4,7 +4,7 @@ languages:
 - java
 products:
 - Azure Spring Apps
-- Azure Database for PostgresSQL
+- Azure Database for PostgreSQL
 - Azure Cache for Redis
 - Azure Active Directory
 description: "Deploy Microservice Apps to Azure"
@@ -52,7 +52,7 @@ The following diagram shows the architecture of the ACME Fitness Store that will
 This application is composed of several services:
 
 * 3 Java Spring Boot applications:
-  * A catalog service for fetching available products. This application will use Azure AD authentication to connect to PostgresSQL
+  * A catalog service for fetching available products. This application will use Azure AD authentication to connect to PostgreSQL
   * A payment service for processing and approving payments for users' orders
   * An identity service for referencing the authenticated user
 
@@ -76,7 +76,7 @@ or sign up for a
 
 In addition, you will need the following:
 
-| [Azure CLI version 2.42.0 or higher](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
+| [Azure CLI version 2.47.0 or higher](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest)
 | [Git](https://git-scm.com/)
 | [`jq` utility](https://stedolan.github.io/jq/download/)
 |
@@ -115,16 +115,21 @@ Install the Azure Spring Apps extension for the Azure CLI using the following co
 az extension add --name spring
 ```
 
-Note - `spring-cloud` CLI extension `3.0.0` or later is a pre-requisite to enable the
-latest Enterprise tier functionality to configure VMware Tanzu Components. Use the following
-command to remove previous versions and install the latest Enterprise tier extension:
+If the extension is already installed, update it with the following command
+
+```shell
+az extension update --name spring
+```
+
+Note - In some cases, the update command may fail and it will be necessary to reinstall the Azure
+Spring Apps extension. Use the following command to remove previous versions and install the latest 
+Azure Spring Apps extension:
 
 ```shell
 az extension remove --name spring-cloud
+az extension remove --name spring
 az extension add --name spring
 ```
-
-If `spring-cloud`'s version still < `3.0.0` after above commands, you can try to [re-install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). 
 
 ## Clone the repo
 
@@ -208,8 +213,12 @@ az spring create --name ${SPRING_APPS_SERVICE} \
     --enable-service-registry \
     --enable-gateway \
     --enable-api-portal \
+    --enable-alv \
+    --enable-app-acc \
     --build-pool-size S2 
 ```
+
+> Note: If the `create` command fails, try updating the Azure Spring Apps extension described [here](#install-the-azure-cli-extension)
 
 > Note: The service instance will take around 10-15 minutes to deploy.
 
@@ -939,9 +948,6 @@ az keyvault secret set --vault-name ${KEY_VAULT} \
     --name "ConnectionStrings--OrderContext" --value "Server=${POSTGRES_SERVER_FULL_NAME};Database=${ORDER_SERVICE_DB};Port=5432;Ssl Mode=Require;User Id=${POSTGRES_SERVER_USER};Password=${POSTGRES_SERVER_PASSWORD};"
     
 az keyvault secret set --vault-name ${KEY_VAULT} \
-    --name "CATALOG-DATABASE-NAME" --value ${CATALOG_SERVICE_DB}
-    
-az keyvault secret set --vault-name ${KEY_VAULT} \
     --name "POSTGRES-LOGIN-NAME" --value ${POSTGRES_SERVER_USER}
     
 az keyvault secret set --vault-name ${KEY_VAULT} \
@@ -979,9 +985,6 @@ export CART_SERVICE_APP_IDENTITY=$(az spring app show --name ${CART_SERVICE_APP}
 az spring app identity assign --name ${ORDER_SERVICE_APP}
 export ORDER_SERVICE_APP_IDENTITY=$(az spring app show --name ${ORDER_SERVICE_APP} | jq -r '.identity.principalId')
 
-az spring app identity assign --name ${CATALOG_SERVICE_APP}
-export CATALOG_SERVICE_APP_IDENTITY=$(az spring app show --name ${CATALOG_SERVICE_APP} | jq -r '.identity.principalId')
-
 az spring app identity assign --name ${IDENTITY_SERVICE_APP}
 export IDENTITY_SERVICE_APP_IDENTITY=$(az spring app show --name ${IDENTITY_SERVICE_APP} | jq -r '.identity.principalId')
 ```
@@ -994,9 +997,6 @@ az keyvault set-policy --name ${KEY_VAULT} \
     
 az keyvault set-policy --name ${KEY_VAULT} \
     --object-id ${ORDER_SERVICE_APP_IDENTITY} --secret-permissions get list
-
-az keyvault set-policy --name ${KEY_VAULT} \
-    --object-id ${CATALOG_SERVICE_APP_IDENTITY} --secret-permissions get list
 
 az keyvault set-policy --name ${KEY_VAULT} \
     --object-id ${IDENTITY_SERVICE_APP_IDENTITY} --secret-permissions get list
@@ -1020,14 +1020,6 @@ az spring connection delete \
 az spring connection delete \
     --resource-group ${RESOURCE_GROUP} \
     --service ${SPRING_APPS_SERVICE} \
-    --connection ${CATALOG_SERVICE_DB_CONNECTION} \
-    --app ${CATALOG_SERVICE_APP} \
-    --deployment default \
-    --yes 
-
-az spring connection delete \
-    --resource-group ${RESOURCE_GROUP} \
-    --service ${SPRING_APPS_SERVICE} \
     --connection ${CART_SERVICE_CACHE_CONNECTION} \
     --app ${CART_SERVICE_APP} \
     --deployment default \
@@ -1035,11 +1027,7 @@ az spring connection delete \
     
 az spring app update --name ${ORDER_SERVICE_APP} \
     --env "ConnectionStrings__KeyVaultUri=${KEYVAULT_URI}" "AcmeServiceSettings__AuthUrl=https://${GATEWAY_URL}" "DatabaseProvider=Postgres"
-
-az spring app update --name ${CATALOG_SERVICE_APP} \
-    --config-file-pattern catalog/default,catalog/key-vault \
-    --env "SPRING_CLOUD_AZURE_KEYVAULT_SECRET_PROPERTY_SOURCES_0_ENDPOINT=${KEYVAULT_URI}" "SPRING_CLOUD_AZURE_KEYVAULT_SECRET_PROPERTY_SOURCES_0_NAME='acme-fitness-store-vault'" "SPRING_PROFILES_ACTIVE=default,key-vault"
-    
+   
 az spring app update --name ${IDENTITY_SERVICE_APP} \
     --config-file-pattern identity/default,identity/key-vault \
     --env "SPRING_CLOUD_AZURE_KEYVAULT_SECRET_PROPERTY_SOURCES_0_ENDPOINT=${KEYVAULT_URI}" "SPRING_CLOUD_AZURE_KEYVAULT_SECRET_PROPERTY_SOURCES_0_NAME='acme-fitness-store-vault'" "SPRING_PROFILES_ACTIVE=default,key-vault"
@@ -1316,6 +1304,51 @@ echo "https://${GATEWAY_URL}/products"
 ```
 
 Make several requests to the URL for `/products` within a five second period to see requests fail with a status `429 Too Many Requests`.
+
+### Monitor your applications using Application Live View
+
+[Application Live View for VMware Tanzu](https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.2/tap/GUID-app-live-view-about-app-live-view.html) is a lightweight insights and troubleshooting tool that helps app developers and app operators look inside running apps.
+
+Application Live View only supports Spring Boot applications.
+
+#### Access Application Live View
+
+```shell
+az spring dev-tool update \
+    --resource-group ${RESOURCE_GROUP} \
+    --service ${SPRING_APPS_SERVICE} \
+    --assign-endpoint
+
+export SPRING_DEV_TOOL=$(az spring dev-tool show \
+    --resource-group ${RESOURCE_GROUP} \
+    --service ${SPRING_APPS_SERVICE} | jq -r '.properties.url')
+
+open "https://${SPRING_DEV_TOOL}/app-live-view"
+```
+If using Azure Cloud Shell or Windows, open the output from the following command in a browser:
+
+```shell
+echo "https://${SPRING_DEV_TOOL}/app-live-view"
+```
+
+#### Use Application Live View to monitor your apps
+
+Click on any of the running applications and select the desired instance to view the real time metrics.
+
+#### Health page
+
+To navigate to the Health page, select the Health option from the Information Category drop-down.
+
+![An example output from app live view health](media/health.png)
+
+#### Memory page
+To navigate to the Memory page, select the Memory option from the Information Category drop-down.
+
+![An example output from app live view memory](media/memory.png)
+
+#### Threads page
+To navigate to the Threads page, select the Threads option from the Information Category drop-down.
+![An example output from app live view threads](media/threads.png)
 
 ## Unit 7 - Automate from idea to production
 

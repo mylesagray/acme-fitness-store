@@ -86,8 +86,10 @@ This creates a jar file on your local disk and uploads it to the app instance yo
 
 Go to [the Azure portal](https://portal.azure.com/):
 
-- Look for your Azure Spring Apps instance in your resource group
+- Look for your Azure Spring Apps instance in your resource group or searching instance by inputing name into search field of Azure Portal
+![Updated instance count](./images/search-resource.png)
 - Click "Apps" in the "Settings" section of the navigation pane and select "hello-world"
+![Select App](./images/select-app.png)
 - Find the "Test endpoint" in the "Essentials" section.
 ![Test endpoint](images/test-endpoint.png)
 - This will give you something like:
@@ -131,6 +133,6 @@ Congratulations, you have deployed your first Spring Boot app to Azure Spring Ap
 
 ---
 
-⬅️ Previous guide: [02 - HOL 1 Hello World App](../02-hol-1-hello-world-app/README.md)
+⬅️ Previous guide: [01 - Workshop Environment Setup](../01-workshop-environment-setup/README.md)
 
 ➡️ Next guide: [03 - HOL 2 - Deploy Acme Fitness frontend App](../03-hol-2-deploy-frontend-app/README.md)

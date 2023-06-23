@@ -10,3 +10,7 @@ export PAYMENT_SERVICE_APP="payment-service"
 export CATALOG_SERVICE_APP="catalog-service"
 export FRONTEND_APP="frontend"
 
+echo "export SUBSCRIPTION=$SUBSCRIPTION"
+echo "export RESOURCE_GROUP=$RESOURCE_GROUP"
+echo "export SPRING_APPS_SERVICE=$SPRING_APPS_SERVICE"
+echo "export REGION=$REGION"

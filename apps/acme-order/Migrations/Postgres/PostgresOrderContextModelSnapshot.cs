@@ -46,7 +46,7 @@ namespace acmeorder.Migrations.Postgres
                         .ValueGeneratedOnAdd()
                         .HasColumnName("date")
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 5, 9, 8, 55, 19, 197, DateTimeKind.Utc).AddTicks(5020));
+                        .HasDefaultValue(new DateTime(2022, 5, 9, 8, 55, 19, 197, DateTimeKind.Unspecified).AddTicks(5020));
 
                     b.Property<string>("Delivery")
                         .HasColumnName("delivery")

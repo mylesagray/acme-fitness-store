@@ -1,5 +1,14 @@
 ---
 apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: fitness-store
+  description: ACME Fitness Online Store
+spec:
+  owner: team-b
+  domain: cloud-apps
+---
+apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: acme-cart

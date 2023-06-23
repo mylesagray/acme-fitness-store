@@ -92,12 +92,14 @@ Now that all the required apps are created, the next step is to go ahead and dep
 # Deploy Payment Service
 az spring app deploy --name ${PAYMENT_SERVICE_APP} \
     --config-file-pattern payment/default \
-    --source-path ./apps/acme-payment 
+    --source-path ./apps/acme-payment \
+    --build-env BP_JVM_VERSION=17
 
 # Deploy Catalog Service
 az spring app deploy --name ${CATALOG_SERVICE_APP} \
     --config-file-pattern catalog/default \
-    --source-path ./apps/acme-catalog 
+    --source-path ./apps/acme-catalog \
+    --build-env BP_JVM_VERSION=17
 
 # Deploy Order Service
 az spring app deploy --name ${ORDER_SERVICE_APP} \
@@ -115,15 +117,16 @@ So far in this section we were able to successfully create and deploy the apps i
 
 Now that all the required apps are deployed, you should be able to open the home page and access through the app. You should be able to browse through the catalog and view the different products.
 
-You will not be able to submit any orders at this point as SSO is not enabled. To 
+**You will not be able to submit any orders at this point as SSO is not enabled.**
 
 ## 8. Explore the API using API Portal
 
-Assign an endpoint to API Portal and open it in a browser:
+Create API portal and assign an endpoint to API Portal and open it in a browser:
 
 ```shell
+az spring api-portal create
 az spring api-portal update --assign-endpoint true
-export PORTAL_URL=$(az spring api-portal show | jq -r '.properties.url')
+export PORTAL_URL=$(az spring api-portal show --query properties.url --output tsv)
 
 echo "https://${PORTAL_URL}"
 ```

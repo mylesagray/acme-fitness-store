@@ -17,7 +17,7 @@ namespace acmeorder.Migrations.Postgres
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
-                    date = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 5, 9, 8, 55, 19, 197, DateTimeKind.Utc).AddTicks(5020)),
+                    date = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 5, 9, 8, 55, 19, 197, DateTimeKind.Unspecified).AddTicks(5020)),
                     paid = table.Column<string>(maxLength: 1000, nullable: true),
                     user_id = table.Column<string>(maxLength: 1000, nullable: true),
                     firstname = table.Column<string>(maxLength: 1000, nullable: true),

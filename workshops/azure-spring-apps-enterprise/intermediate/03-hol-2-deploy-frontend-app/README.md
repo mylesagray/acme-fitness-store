@@ -5,9 +5,9 @@ This diagram below shows the final result once this section is complete:
 
 Below are the diffrent steps that we configure/create to successfully deploy the services/apps
 - [1. Create and Deploy frontend application in Azure Spring Apps](#1-create-and-deploy-frontend-application-in-azure-spring-apps)
-- [4. Configure Spring Cloud Gateway](#4-configure-spring-cloud-gateway)
-  - [4.1. Create  routing rules for the applications:](#41-create--routing-rules-for-the-applications)
-- [5. Access the Application through Spring Cloud Gateway](#5-access-the-application-through-spring-cloud-gateway)
+- [2. Configure Spring Cloud Gateway](#2-configure-spring-cloud-gateway)
+  - [2.1. Create  routing rules for the applications:](#21-create--routing-rules-for-the-applications)
+- [3. Access the Application through Spring Cloud Gateway](#3-access-the-application-through-spring-cloud-gateway)
 
 
 
@@ -29,14 +29,14 @@ az spring app deploy --name ${FRONTEND_APP} \
     --source-path ./apps/acme-shopping 
 ```
 
-## 4. Configure Spring Cloud Gateway
+## 2. Configure Spring Cloud Gateway
 
 Assign a public endpoint and update the Spring Cloud Gateway configuration with API
 information:
 
 ```shell
 az spring gateway update --assign-endpoint true
-export GATEWAY_URL=$(az spring gateway show | jq -r '.properties.url')
+export GATEWAY_URL=$(az spring gateway show --query properties.url --output tsv)
 ```
 The assign-endpoint argument with a value of true creates a publicly accessible endpoint for the gateway.
 
@@ -50,7 +50,7 @@ az spring gateway update \
     --no-wait
 ```
 
-### 4.1. Create  routing rules for the applications:
+### 2.1. Create  routing rules for the applications:
 
 Routing rules bind endpoints in the request to the backend applications. In the step below we are creating a rule in SCG to the frontend app.
 
@@ -63,7 +63,7 @@ az spring gateway route-config create \
 
 ```
 
-## 5. Access the Application through Spring Cloud Gateway
+## 3. Access the Application through Spring Cloud Gateway
 
 Retrieve the URL for Spring Cloud Gateway and open it in a browser:
 
