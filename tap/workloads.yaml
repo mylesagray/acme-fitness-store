@@ -12,14 +12,14 @@ metadata:
     apps.tanzu.vmware.com/has-tests: "true"
 spec:
   env:
+  - name: TRACER-HOST
+    value: "jaeger"
+  - name: TRACER-PORT
+    value: "6832"
   - name: CART_PORT
     value: "8080"
   - name: AUTH_MODE
     value: "0"
-  - name: TRACER-HOST
-    valeu: "jaeger"
-  - name: TRACER-PORT
-    value: 6832
   - name: REDIS_HOST
     value: cart-redis
   - name: REDIS_PORT
