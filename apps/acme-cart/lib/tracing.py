@@ -29,7 +29,7 @@ def init_tracer(service, app):
     logging.getLogger('').handlers=[]
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 
-    app.logger.info("init_tracer - jaegerhost: %s", jaegerhost)
+    app.logger.info(">>>>> init_tracer - jaegerhost: %s", jaegerhost)
 
     config=Config(
         config={
@@ -45,5 +45,10 @@ def init_tracer(service, app):
         },
         service_name=service
     )
+    local_tracer = config.initialize_tracer()
+    if local_tracer is None:
+            app.logger.info(">>>>> init_tracer - FAILED")
 
-    return config.initialize_tracer()
+    return local_tracer
+        
+    # return config.initialize_tracer()
