@@ -1,0 +1,70 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: yaeger-collector
+    name: yaeger
+  name: yaeger
+  namespace:  #@ data.values.workloadNamespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yaeger-collector
+  template:
+    metadata:
+      labels:
+        app: yaeger-collector
+    spec:
+      containers:
+      - name: yaeger
+        image: jaegertracing/all-in-one:1.11
+        args: ["--reporter.grpc.host-port=wavefront-proxy:30001"]
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 14268
+          protocol: TCP
+        - containerPort: 16686
+          protocol: TCP
+        - containerPort: 5778
+          protocol: TCP
+        - containerPort: 6831
+          protocol: UDP
+        - containerPort: 6832
+          protocol: UDP
+        - containerPort: 5775
+          protocol: UDP
+        securityContext:
+          privileged: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yaeger
+  labels:
+    app: yaeger-collector
+  namespace:  #@ data.values.workloadNamespace
+spec:
+  ports:
+  - name: p1
+    port: 14268
+    protocol: TCP
+  - name: p2
+    port: 16686
+    protocol: TCP
+  - name: p3
+    port: 5778
+    protocol: TCP
+  - name: p4
+    port: 6831
+    protocol: UDP
+  - name: p5
+    port: 6832
+    protocol: UDP
+  - name: p6
+    port: 5775
+    protocol: UDP
+  selector:
+    app: yaeger-collector

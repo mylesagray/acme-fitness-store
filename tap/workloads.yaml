@@ -12,6 +12,10 @@ metadata:
     apps.tanzu.vmware.com/has-tests: "true"
 spec:
   env:
+  - name: TRACER-HOST
+    value: "jaeger.acme-fitness"
+  - name: TRACER-PORT
+    value: "6832"
   - name: CART_PORT
     value: "8080"
   - name: AUTH_MODE

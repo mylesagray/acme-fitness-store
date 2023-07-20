@@ -15,6 +15,7 @@ if environ.get('TRACER_HOST') is not None:
 else:
     jaegerhost='localhost'
 
+
 if environ.get('TRACER_PORT') is not None:
     if os.environ['TRACER_PORT'] != "":
         jaegerport=os.environ['TRACER_PORT']
@@ -24,9 +25,11 @@ else:
     jaegerport=6832
 
 
-def init_tracer(service):
+def init_tracer(service, app):
     logging.getLogger('').handlers=[]
     logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+
+    app.logger.info("init_tracer - jaegerhost: %s", jaegerhost)
 
     config=Config(
         config={
@@ -34,13 +37,12 @@ def init_tracer(service):
                 'type':'const',
                 'param':1
             },
-#            'local_agent': {
-#                'reporting_host': jaegerhost,
-#                'reporting_port': jaegerport,
-#            },
+           'local_agent': {
+               'reporting_host': jaegerhost,
+               'reporting_port': jaegerport,
+           },
             'logging':True
         },
         service_name=service
     )
-
     return config.initialize_tracer()

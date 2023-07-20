@@ -85,7 +85,7 @@ sentry_sdk.init(
     integrations=[FlaskIntegration()]
 )
 
-cart_tracer = init_tracer('cart')
+cart_tracer = init_tracer('cart', app)
 # flask_tracer = FlaskTracing(opentracing_tracer, True, app)
 
 
