@@ -145,7 +145,7 @@ ytt -f workloads.yaml -v workloadNamespace=<workloadNamespace> -v appSSOIssuerUR
 For example:
 
 ```
-ytt -f workloads.yaml -v workloadNamespace=workloads -v appSSOIssuerURI=https://appsso-acme-fitness.workloads.tap-next.blah.cloud  -v appDomainName=tap-next.blah.cloud -v sourceRepo=https://github.com/mylesagray/acme-fitness-store -v sourceRepoBranch=Azure  | kubectl apply -f-
+ytt -f workloads.yaml -v workloadNamespace=workloads -v appSSOIssuerURI=https://appsso-acme-fitness.acme-fitness.tap-next.blah.cloud  -v appDomainName=tap-next.blah.cloud -v sourceRepo=https://github.com/mylesagray/acme-fitness-store -v sourceRepoBranch=Azure  | kubectl apply -f-
 ```
 
 ### Spring Cloud Gateway Deployment
